@@ -1374,8 +1374,33 @@ button{-webkit-touch-callout:none;}
 #panel-records>.card{padding-bottom:3px;}
 
 </style>
+<style>
+/* ===== 简单密码屏（前端锁，仅挡随便点进来的人，密码写在公开代码里，不算真正安全） ===== */
+#lock-screen{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:#080b12;transition:opacity .25s;}
+.lock-card{width:100%;max-width:320px;text-align:center;padding:28px 22px;border:1px solid rgba(232,200,106,.28);border-radius:16px;background:linear-gradient(180deg,#161d2b,#0f141e);}
+.lock-logo{width:56px;height:56px;margin:0 auto 14px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#1a1405;background:linear-gradient(145deg,#f7e2a3,#d4af37 55%,#a8830f);}
+.lock-card h2{margin:0 0 6px;font-size:16px;letter-spacing:2px;color:#f1e8c9;}
+.lock-card p{margin:0 0 16px;font-size:12px;color:#8b93a7;letter-spacing:1px;}
+#lock-input{width:100%;padding:11px 12px;font-size:16px;text-align:center;letter-spacing:4px;color:#e8ebf2;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:10px;outline:none;}
+#lock-input:focus{border-color:rgba(232,200,106,.6);}
+#lock-error{min-height:18px;margin:8px 0 4px;font-size:12px;color:#ff5c7a;}
+#lock-btn{width:100%;padding:11px;font-size:14px;font-weight:800;letter-spacing:2px;color:#1a1405;border:none;border-radius:10px;background:linear-gradient(135deg,#f7e2a3,#d4af37 55%,#b8912b);cursor:pointer;}
+.lock-card small{display:block;margin-top:12px;font-size:11px;color:#68718a;}
+</style>
 </head>
 <body>
+<div id="lock-screen">
+  <div class="lock-card">
+    <div class="lock-logo">六</div>
+    <h2>新澳门 · 数据分析</h2>
+    <p>请输入密码进入</p>
+    <input id="lock-input" type="password" inputmode="numeric" autocomplete="off" placeholder="请输入密码" />
+    <div id="lock-error"></div>
+    <button id="lock-btn" type="button">进入</button>
+    <small>本次打开验证一次即可</small>
+  </div>
+</div>
+
 <svg style="position:absolute;width:0;height:0;overflow:hidden;pointer-events:none" aria-hidden="true" focusable="false"><defs>
   <linearGradient id="gGold" gradientUnits="userSpaceOnUse" x1="3" y1="3" x2="21" y2="21">
     <stop offset="0" stop-color="#fbeab0"/><stop offset=".55" stop-color="#e8c86a"/><stop offset="1" stop-color="#b8912b"/>
@@ -5512,5 +5537,29 @@ document.addEventListener('touchstart', () => {}, { passive:true });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveIndicator);
 })();
 </script>
+
+<script>
+(function(){
+  var PASS='666888';
+  var screen=document.getElementById('lock-screen');
+  if(!screen) return;
+  try{ if(sessionStorage.getItem('mk6-unlocked')==='1'){ screen.remove(); return; } }catch(e){}
+  function unlock(){
+    var inp=document.getElementById('lock-input');
+    var v=(inp.value||'').trim();
+    if(v===PASS){
+      try{ sessionStorage.setItem('mk6-unlocked','1'); }catch(e){}
+      screen.style.opacity='0';
+      setTimeout(function(){ screen.remove(); },250);
+    }else{
+      document.getElementById('lock-error').textContent='密码错误，请重新输入';
+      inp.value=''; inp.focus();
+    }
+  }
+  document.getElementById('lock-btn').addEventListener('click', unlock);
+  document.getElementById('lock-input').addEventListener('keydown', function(e){ if(e.key==='Enter') unlock(); });
+})();
+</script>
+
 </body>
 </html>
